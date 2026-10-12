@@ -1,0 +1,90 @@
+project:
+  name: "EduRisk AI"
+  version: "1.0.0"
+  description: "Explainable Machine Learning for Early Prediction of Student Academic Risk"
+  author: "19MAM56 AML Lab Research Team"
+
+data:
+  dataset_name: "student_performance_portuguese"
+  uci_url: "https://archive.ics.uci.edu/static/public/320/student+performance.zip"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  raw_file: "data/raw/student-por.csv"
+  math_file: "data/raw/student-mat.csv"
+  processed_train_file: "data/processed/train.csv"
+  processed_val_file: "data/processed/val.csv"
+  processed_test_file: "data/processed/test.csv"
+  
+target:
+  name: "at_risk"
+  raw_target: "G3"
+  risk_threshold: 10 # G3 < 10 is at_risk (1), G3 >= 10 is lower_risk (0)
+  leakage_columns_to_drop:
+    - "G3"
+    - "G2"
+
+features:
+  numerical:
+    - "age"
+    - "Medu"
+    - "Fedu"
+    - "traveltime"
+    - "studytime"
+    - "failures"
+    - "famrel"
+    - "freetime"
+    - "goout"
+    - "Dalc"
+    - "Walc"
+    - "health"
+    - "absences"
+    - "G1"
+  categorical:
+    - "school"
+    - "sex"
+    - "address"
+    - "famsize"
+    - "Pstatus"
+    - "Mjob"
+    - "Fjob"
+    - "reason"
+    - "guardian"
+    - "schoolsup"
+    - "famsup"
+    - "paid"
+    - "activities"
+    - "nursery"
+    - "higher"
+    - "internet"
+    - "romantic"
+
+split:
+  test_size: 0.20
+  val_size: 0.15
+  random_state: 42
+  stratify: true
+
+models:
+  primary_model: "xgboost"
+  optuna_trials: 35
+  cv_folds: 5
+  random_state: 42
+  decision_threshold: 0.35 # Optimized for high recall of at-risk students while preserving precision
+
+pca:
+  variance_ratio: 0.95
+  random_state: 42
+
+paths:
+  artifacts_dir: "models/saved_models"
+  best_model_path: "models/saved_models/best_model.joblib"
+  preprocessor_path: "models/saved_models/preprocessor.joblib"
+  metrics_path: "reports/model_metrics.json"
+  figures_dir: "reports/figures"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+
+streamlit:
+  port: 8501
