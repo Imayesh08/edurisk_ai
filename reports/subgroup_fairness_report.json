@@ -4,23 +4,23 @@
     "value":"F",
     "count":80,
     "recall":0.9,
-    "precision":0.5294117647,
-    "false_positive_rate":0.1142857143
+    "precision":0.4736842105,
+    "false_positive_rate":0.1428571429
   },
   {
     "subgroup":"sex",
     "value":"M",
     "count":50,
-    "recall":0.8,
-    "precision":0.4210526316,
-    "false_positive_rate":0.275
+    "recall":0.9,
+    "precision":0.5,
+    "false_positive_rate":0.225
   },
   {
     "subgroup":"school",
     "value":"GP",
     "count":84,
-    "recall":0.7142857143,
-    "precision":0.4166666667,
+    "recall":0.8571428571,
+    "precision":0.4615384615,
     "false_positive_rate":0.0909090909
   },
   {
@@ -36,15 +36,15 @@
     "value":"R",
     "count":33,
     "recall":1.0,
-    "precision":0.6428571429,
-    "false_positive_rate":0.2083333333
+    "precision":0.6923076923,
+    "false_positive_rate":0.1666666667
   },
   {
     "subgroup":"address",
     "value":"U",
     "count":97,
-    "recall":0.7272727273,
-    "precision":0.3636363636,
-    "false_positive_rate":0.1627906977
+    "recall":0.8181818182,
+    "precision":0.375,
+    "false_positive_rate":0.1744186047
   }
 ]
