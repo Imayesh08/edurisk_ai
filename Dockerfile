@@ -1,4 +1,4 @@
-# Multi-stage production container for EduRisk AI
+# Multi-stage production container for EduRisk AI (Hugging Face Spaces & Cloud Compatible)
 FROM python:3.11-slim AS base
 
 # Install system runtime & build dependencies
@@ -12,27 +12,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Hugging Face Spaces non-root user setup (UID 1000)
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    MPLCONFIGDIR=/tmp/matplotlib_cache \
+    PORT=7860
+
+WORKDIR $HOME/app
 
 # Install Python dependencies first for caching
-COPY requirements.txt .
+COPY --chown=user:user requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy all project code, trained models, data, and configs
-COPY . .
+COPY --chown=user:user . .
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    MPLCONFIGDIR=/tmp/matplotlib_cache \
-    PORT=8501
+# Expose default Hugging Face Spaces port (7860) and standard ports (8501, 8000)
+EXPOSE 7860 8501 8000
 
-# Expose default Streamlit port (8501) and FastAPI port (8000)
-EXPOSE 8501 8000
-
-# Healthcheck for container orchestration
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8501}/_stcore/health || exit 1
+    CMD curl -f http://localhost:${PORT:-7860}/_stcore/health || exit 1
 
-# Start command: adapts dynamically to $PORT (Render/Cloud) or defaults to 8501 (Local Docker)
-CMD ["sh", "-c", "streamlit run app/streamlit_app.py --server.port=${PORT:-8501} --server.address=0.0.0.0"]
+# Start command: adapts dynamically to $PORT (7860 for HF Spaces, dynamic on Render, or defaults to 7860)
+CMD ["sh", "-c", "streamlit run app/streamlit_app.py --server.port=${PORT:-7860} --server.address=0.0.0.0"]

@@ -3,8 +3,8 @@ title: EduRisk AI — Student Academic Risk Prediction
 emoji: 🎓
 colorFrom: indigo
 colorTo: blue
-sdk: gradio
-app_file: app.py
+sdk: docker
+app_port: 7860
 pinned: false
 license: mit
 ---
