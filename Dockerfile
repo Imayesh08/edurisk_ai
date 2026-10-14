@@ -1,47 +1,38 @@
 # Multi-stage production container for EduRisk AI
-FROM python:3.12-slim AS base
+FROM python:3.11-slim AS base
 
-# System dependencies
+# Install system runtime & build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     git \
     libgomp1 \
+    zlib1g-dev \
+    libjpeg-dev \
+    libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install Python requirements
+# Install Python dependencies first for caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application source code and pre-trained artifacts
-COPY configs/ ./configs/
-COPY data/ ./data/
-COPY src/ ./src/
-COPY models/ ./models/
-COPY reports/ ./reports/
-COPY api/ ./api/
-COPY app/ ./app/
-COPY .streamlit/ ./.streamlit/
+# Copy all project code, trained models, data, and configs
+COPY . .
 
-# Create non-root system user for security
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
-USER appuser
-
-# Expose FastAPI (8000) and Streamlit (8501 / 7860 for HF Spaces)
-EXPOSE 8000 8501 7860
-
-# Default environment variables
+# Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     MPLCONFIGDIR=/tmp/matplotlib_cache \
     PORT=8501
 
-# Healthcheck for container orchestration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8501/_stcore/health || exit 1
+# Expose default Streamlit port (8501) and FastAPI port (8000)
+EXPOSE 8501 8000
 
-# Default launch command: starts Streamlit dashboard
-CMD ["streamlit", "run", "app/streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Healthcheck for container orchestration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8501}/_stcore/health || exit 1
+
+# Start command: adapts dynamically to $PORT (Render/Cloud) or defaults to 8501 (Local Docker)
+CMD ["sh", "-c", "streamlit run app/streamlit_app.py --server.port=${PORT:-8501} --server.address=0.0.0.0"]
