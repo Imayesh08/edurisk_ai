@@ -1,3 +1,14 @@
+---
+title: EduRisk AI — Student Academic Risk Prediction
+emoji: 🎓
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # EduRisk AI — Explainable Machine Learning for Early Prediction of Student Academic Risk
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
